@@ -23,6 +23,11 @@ COPY --from=deps /app/node_modules ./node_modules
 # Make sure to include next.config.js and other necessary files
 COPY client/ ./
 
+ARG NEXT_PUBLIC_API_URL
+# Set it as an environment variable for the build command
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+# -----------------------------
+
 # Build the Next.js application
 # The NEXT_PUBLIC_API_URL will be available at runtime from docker-compose
 RUN yarn build
