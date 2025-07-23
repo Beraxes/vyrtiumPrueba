@@ -1,0 +1,54 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    ports:
+      - "${API_PORT}:${API_PORT}" # Map host port to container port using variable
+    environment:
+      # Reference variables from the .env file
+      MONGO_URI: "${MONGO_URI}"
+      PORT: "${API_PORT}"
+      JWT_SECRET: "${JWT_SECRET}"
+      JWT_EXPIRATION: "${JWT_EXPIRATION}"
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile # Assumes the new Dockerfile is named this
+      args:
+        NEXT_PUBLIC_API_URL: "${API_URL}"
+    ports:
+      - "3000:3000" # Changed: Next.js default port is 3000
+    environment:
+      # Use runtime environment variables for Next.js
+      # The variable must be prefixed with NEXT_PUBLIC_ to be exposed to the browser
+      NEXT_PUBLIC_API_URL: "${API_URL}" # Re-using your .env variable
+    networks:
+      - app-network
+    depends_on:
+      - api
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017" # MongoDB host port to container port
+    environment:
+      # Reference variables from the .env file
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_ROOT_PASSWORD}"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
