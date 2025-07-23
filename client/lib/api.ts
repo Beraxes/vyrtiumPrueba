@@ -2,6 +2,14 @@ import { AuthResponse, LoginRequest, RegisterRequest, Task, CreateTaskRequest, U
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+// A custom error to identify authentication issues easily
+export class AuthError extends Error {
+  constructor(message = 'Authentication error') {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
+
 class ApiClient {
   private getAuthHeaders() {
     const token = localStorage.getItem('access_token');
@@ -11,37 +19,41 @@ class ApiClient {
     };
   }
 
+  // Centralized response handler
+  private async handleResponse<T>(response: Response): Promise<T> {
+    if (response.status === 401) {
+      throw new AuthError('Session expired. Please log in again.');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'An unknown API error occurred' }));
+      throw new Error(errorData.message);
+    }
+    // For 204 No Content, which has no body
+    if (response.status === 204) {
+      return {} as T;
+    }
+    return response.json();
+  }
+
   async register(data: RegisterRequest): Promise<{ message: string }> {
     const response = await fetch(`${API_URL}/users/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error('Registration failed');
-    }
-
-    return response.json();
+    return this.handleResponse(response);
   }
 
   async login(data: LoginRequest): Promise<AuthResponse> {
     const response = await fetch(`${API_URL}/users/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error('Login failed');
+    const result = await this.handleResponse<AuthResponse>(response);
+    if (result.access_token) {
+        localStorage.setItem('access_token', result.access_token);
     }
-
-    const result = await response.json();
-    localStorage.setItem('access_token', result.access_token);
     return result;
   }
 
@@ -49,12 +61,7 @@ class ApiClient {
     const response = await fetch(`${API_URL}/tasks`, {
       headers: this.getAuthHeaders(),
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch tasks');
-    }
-
-    return response.json();
+    return this.handleResponse(response);
   }
 
   async createTask(data: CreateTaskRequest): Promise<Task> {
@@ -63,12 +70,7 @@ class ApiClient {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to create task');
-    }
-
-    return response.json();
+    return this.handleResponse(response);
   }
 
   async updateTask(id: string, data: UpdateTaskRequest): Promise<Task> {
@@ -77,12 +79,7 @@ class ApiClient {
       headers: this.getAuthHeaders(),
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to update task');
-    }
-
-    return response.json();
+    return this.handleResponse(response);
   }
 
   async deleteTask(id: string): Promise<{ message: string }> {
@@ -90,12 +87,7 @@ class ApiClient {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to delete task');
-    }
-
-    return response.json();
+    return this.handleResponse(response);
   }
 
   logout() {
