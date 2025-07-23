@@ -44,7 +44,6 @@ USER nextjs
 # Copy the standalone build output from the builder stage
 # This is why 'output: standalone' in next.config.js is required
 COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nextjs /app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
 
 # Expose the port the Next.js application will run on
