@@ -20,7 +20,6 @@ COPY api/src ./src
 COPY api/nest-cli.json ./nest-cli.json
 COPY api/tsconfig.json ./tsconfig.json
 COPY api/tsconfig.build.json ./tsconfig.build.json
-COPY api/public ./public
 
 # Build the NestJS application
 # The build output will be in the 'dist' directory
@@ -38,8 +37,6 @@ COPY --from=builder /app/api/dist ./dist
 # Copy the entire node_modules directory from the builder stage,
 # which now includes correctly compiled native modules like bcrypt.
 COPY --from=builder /app/api/node_modules ./node_modules
-# Copy public assets if needed by the runtime (e.g., if serving static files from NestJS)
-COPY api/public ./public
 
 # No need to run yarn install --production here, as node_modules are copied directly.
 # This ensures that the native modules compiled in the builder stage are used.
