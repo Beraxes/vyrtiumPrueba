@@ -76,7 +76,7 @@ cp .env.example .env
 ```
 ### 3. Con Docker (Este es demorado)
 ```bash
-docker compose build && docker compose up -d
+docker compose build --parallel && docker compose up -d
 ```
 
 Edita el archivo `.env`:
