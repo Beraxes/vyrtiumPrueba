@@ -93,7 +93,6 @@ API_URL="http://localhost:3001"
 MONGO_ROOT_USERNAME="rootuser"
 MONGO_ROOT_PASSWORD="rootpassword"
 
-MONGO_URI="mongodb://rootuser:rootpassword@mongo:27017/mydatabase?authSource=admin"
 ```
 
 ### 4. Instalar dependencias (Sin docker)

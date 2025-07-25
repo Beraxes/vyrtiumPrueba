@@ -7,7 +7,7 @@ services:
       - "${API_PORT}:${API_PORT}" # Map host port to container port using variable
     environment:
       # Reference variables from the .env file
-      MONGO_URI: "${MONGO_URI}"
+      MONGO_URI: "mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongo:27017/mydatabase?authSource=admin"
       PORT: "${API_PORT}"
       JWT_SECRET: "${JWT_SECRET}"
       JWT_EXPIRATION: "${JWT_EXPIRATION}"
