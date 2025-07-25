@@ -52,6 +52,7 @@ task-manager/
 │   ├── 📂 hooks/             # Custom hooks
 │   ├── 📄 package.json
 │   └── 📄 tailwind.config.js
+│   └── 📄 .env.example
 ├── 📄 docker-compose.yml      # Orquestación Docker
 └── 📄 .env.example           # Variables de entorno
 ```
@@ -73,21 +74,29 @@ cd vyrtiumPrueba
 ```bash
 cp .env.example .env
 ```
+### 3. Con Docker (Este es demorado)
+```bash
+docker compose build && docker compose up -d
+```
 
 Edita el archivo `.env`:
 ```env
-# Database
-MONGO_URI=mongodb://localhost:27017/taskmanager
+# API Configuration
+API_PORT=3001
+JWT_SECRET="your-super-secret-jwt-key"
+JWT_EXPIRATION="1d"
 
-# JWT Configuration
-JWT_SECRET=tu_jwt_secret_muy_seguro
-JWT_EXPIRATION=3600s
+# Frontend Configuration
+API_URL="http://localhost:3001"
 
-# Server
-PORT=3000
+# MongoDB Configuration
+MONGO_ROOT_USERNAME="rootuser"
+MONGO_ROOT_PASSWORD="rootpassword"
+
+MONGO_URI="mongodb://rootuser:rootpassword@mongo:27017/mydatabase?authSource=admin"
 ```
 
-### 3. Instalar dependencias
+### 4. Instalar dependencias (Sin docker)
 
 **Backend:**
 ```bash
@@ -120,11 +129,6 @@ La aplicación estará disponible en:
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:3001
 
-### Con Docker (Este es demorado)
-```bash
-docker compose build && docker compose up -d
-```
-
 ## 📚 API Endpoints
 
 ### Autenticación
@@ -137,7 +141,7 @@ POST /login       # Iniciar sesión
 ```
 GET    /tasks          # Obtener todas las tareas
 POST   /tasks          # Crear nueva tarea
-PATCH    /tasks/:id    # Actualizar tarea
+PATCH  /tasks/:id      # Actualizar tarea
 DELETE /tasks/:id      # Eliminar tarea
 ```
 ---
